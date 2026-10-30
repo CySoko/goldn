@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goldn Team Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#2f1d14; --gold:#c9a227; --gold-soft:#f3e6bf;
+    --cream:#faf6ee; --card:#ffffff; --line:#e9dfcd; --muted:#8a7a6b; --text:#2a1c14;
+    --red:#b8382b; --red-soft:#fbe6e3; --green:#3f7d4e; --orange:#ff6a00;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--cream);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.4}
+  header{background:#170d08;color:#fff;padding:22px 28px 18px}
+  .hwrap{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+  .brand{font-family:"Racing Sans One",sans-serif;font-size:40px;line-height:1;color:var(--gold);letter-spacing:.5px}
+  .brand small{display:block;font-family:Inter,sans-serif;font-size:13px;color:#d9cbb8;letter-spacing:.08em;text-transform:uppercase;margin-top:6px;font-weight:600}
+  .hright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+  .today{font-size:13px;color:#d9cbb8}
+  .me{font-size:12px;color:#a8977f;cursor:pointer;background:none;border:0;padding:0;font-family:Inter}
+  .me:hover{color:var(--gold)}
+  .toolbar{max-width:1280px;margin:0 auto;padding:16px 28px 4px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{border:1px solid var(--line);background:#fff;color:var(--text);padding:6px 12px;border-radius:99px;font:500 13px Inter;cursor:pointer}
+  .chip.on{background:var(--espresso);color:#fff;border-color:var(--espresso)}
+  .tright{display:flex;gap:10px;align-items:center}
+  .toggle{font-size:13px;color:var(--muted);display:flex;gap:6px;align-items:center;cursor:pointer;user-select:none}
+  .btn{background:var(--gold);color:var(--espresso);border:0;border-radius:10px;padding:9px 16px;font:700 14px Inter;cursor:pointer}
+  .btn:hover{filter:brightness(1.05)}
+  .btn:disabled{opacity:.6;cursor:default}
+  .btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+  .btn.danger{background:var(--red-soft);color:var(--red)}
+  .btn.danger.armed{background:var(--red);color:#fff}
+  .status{max-width:1280px;margin:8px auto 0;padding:0 28px;font-size:13px;color:var(--muted);min-height:18px}
+  .status.warn{color:var(--red)}
+  main{max-width:1280px;margin:0 auto;padding:12px 28px 48px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:900px){main{grid-template-columns:1fr}.hright{align-items:flex-start}header,.toolbar,main,.status,footer{padding-left:16px;padding-right:16px}}
+  .col{background:#f4ecdf;border-radius:16px;padding:14px;min-height:200px;display:flex;flex-direction:column}
+  .col.now{background:#f6e9c9}
+  .colhead{display:flex;justify-content:space-between;align-items:baseline;padding:4px 6px 10px}
+  .colhead h2{margin:0;font-family:"Racing Sans One",sans-serif;font-weight:400;font-size:24px;color:var(--espresso)}
+  .colhead .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .count{font-size:12px;font-weight:700;background:#fff;border-radius:99px;padding:3px 9px;color:var(--espresso)}
+  .list{display:flex;flex-direction:column;gap:8px;flex:1;min-height:40px;border-radius:12px;transition:background .15s}
+  .list.over{background:rgba(201,162,39,.18)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;display:flex;gap:10px;align-items:flex-start;cursor:pointer;transition:box-shadow .15s}
+  .card:hover{box-shadow:0 3px 12px rgba(47,29,20,.08)}
+  .card.dragging{opacity:.4}
+  .card.overdue{border-left:4px solid var(--red)}
+  .card.done{opacity:.55}
+  .card.done .title{text-decoration:line-through}
+  .check{flex:none;width:20px;height:20px;border:2px solid #c8b89f;border-radius:6px;background:#fff;cursor:pointer;margin-top:1px;display:grid;place-items:center;padding:0}
+  .check.on{background:var(--green);border-color:var(--green)}
+  .check.on::after{content:"";width:5px;height:10px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translate(-1px,-1px)}
+  .body{flex:1;min-width:0}
+  .title{font-weight:600;word-wrap:break-word}
+  .notes{font-size:13px;color:var(--muted);margin-top:3px;white-space:pre-wrap;word-wrap:break-word}
+  .meta{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px;align-items:center}
+  .pill{font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:99px;background:var(--gold-soft);color:var(--espresso)}
+  .pill.right{margin-left:auto}
+  .pill.date{background:#efe7da;color:#5a4636}
+  .pill.date.soon{background:#fdf0cf;color:#8a5a00}
+  .pill.date.late{background:var(--red-soft);color:var(--red)}
+  .dow{font-weight:700;font-size:11.5px;color:var(--orange);border:1.5px solid var(--orange);border-radius:99px;padding:1px 8px;letter-spacing:.02em}
+  .card.done .dow{color:var(--muted);border-color:var(--muted)}
+  .empty{font-size:13px;color:var(--muted);text-align:center;padding:18px 8px;border:1.5px dashed #dccdb4;border-radius:12px}
+  .addline{margin-top:10px;background:transparent;border:1.5px dashed #d2c1a5;color:var(--muted);border-radius:12px;padding:9px;font:600 13px Inter;cursor:pointer}
+  .addline:hover{color:var(--espresso);border-color:var(--gold)}
+  footer{max-width:1280px;margin:0 auto;padding:0 28px 30px;font-size:12px;color:var(--muted)}
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(30,18,12,.45);display:none;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .scrim.open{display:flex}
+  .modal{background:#fff;border-radius:16px;width:100%;max-width:460px;padding:22px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+  .modal h3{margin:0 0 14px;font-family:"Racing Sans One",sans-serif;font-weight:400;font-size:24px;color:var(--espresso)}
+  .modal p{margin:0 0 12px;color:var(--muted);font-size:14px}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+  input,select,textarea{width:100%;font:15px Inter;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);border-color:transparent}
+  textarea{min-height:70px;resize:vertical}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .md{display:grid;grid-template-columns:1.3fr 1fr;gap:6px}
+  .mfoot{display:flex;justify-content:space-between;gap:10px;margin-top:18px}
+  .mfoot .r{display:flex;gap:8px;margin-left:auto}
+  .err{color:var(--red);font-size:13px;margin-top:8px;min-height:16px}
+  .names{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px}
+  .names .btn{padding:12px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hwrap">
+    <div class="brand">Goldn<small>Team Planner · New Venture Creation</small></div>
+    <div class="hright">
+      <div class="today" id="today"></div>
+      <button class="me" id="meBtn" title="Switch who you are"></button>
+    </div>
+  </div>
+</header>
+
+<div class="toolbar">
+  <div class="chips" id="chips"></div>
+  <div class="tright">
+    <label class="toggle" style="margin:0;text-transform:none;letter-spacing:0;font-weight:500"><input type="checkbox" id="showDone" style="width:auto"> Show done</label>
+    <button class="btn" id="addBtn">+ Add task</button>
+  </div>
+</div>
+<div class="status" id="status">Loading tasks…</div>
+
+<main id="board"></main>
+<footer id="foot"></footer>
+
+<!-- task editor -->
+<div class="scrim" id="scrim">
+  <form class="modal" id="form">
+    <h3 id="mTitle">New task</h3>
+    <label for="fTitle">Task</label>
+    <input id="fTitle" required maxlength="200" placeholder="e.g. Email Natalia Dolan for market data">
+    <div class="row">
+      <div><label for="fOwner">Owner</label><select id="fOwner"></select></div>
+      <div><label for="fDow">Due</label><select id="fDow"></select><div id="fMD" class="md"><select id="fMonth" aria-label="Month"></select><select id="fDay" aria-label="Day"></select></div></div>
+    </div>
+    <label for="fSection">Section</label>
+    <select id="fSection"></select>
+    <label for="fNotes">Notes</label>
+    <textarea id="fNotes" maxlength="2000" placeholder="Links, details, what done looks like"></textarea>
+    <div class="err" id="fErr"></div>
+    <div class="mfoot">
+      <button type="button" class="btn danger" id="delBtn">Delete</button>
+      <div class="r">
+        <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
+        <button type="submit" class="btn" id="saveBtn">Save</button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<!-- name picker -->
+<div class="scrim" id="gate">
+  <form class="modal" id="gateForm">
+    <h3>Goldn Team Planner</h3>
+    <div id="nameStep">
+      <p>Who are you? This shows the team who made each change.</p>
+      <div class="names" id="gNames"></div>
+    </div>
+  </form>
+</div>
+
+<script>
+/* ====== CONFIG: paste your Apps Script web app URL here ====== */
+const API_URL = 'https://script.google.com/macros/s/AKfycbybLjTlobieROYLIg5cvU2taWR6rrKCBiGnBXA9U6PTz40wHne-MHAOVu7hoK9NHoo_/exec';
+/* ============================================================== */
+
+const MEMBERS = ['Cy','Evan','Aiden','Michael'];
+const OWNERS = [...MEMBERS,'Team','TBD'];
+const SECTIONS = [
+  {id:'now',  name:'Now',       sub:'Due this week'},
+  {id:'next', name:'Next up',   sub:'The week or two after'},
+  {id:'goal', name:'Big goals', sub:'Longer-term milestones'}
+];
+const POLL_MS = 20000;
+let tasks=[], filter='All', showDone=false, editing=null, loaded=false, pending=0;
+let me = store('goldnName') || '';
+const $ = id => document.getElementById(id);
+
+function store(k,v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k,v); }catch(e){ return null; } }
+function ymd(dt){ return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0'); }
+function parseD(s){ const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
+function daysUntil(s){ if(!s) return null; const t=new Date(); t.setHours(0,0,0,0); return Math.round((parseD(s)-t)/86400000); }
+function fmtDate(s){ return parseD(s).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'}); }
+function dow(s){ return parseD(s).toLocaleDateString(undefined,{weekday:'long'}); }
+function ago(ms){ const s=(Date.now()-ms)/1000; if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
+function esc(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function uid(){ return 't'+Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+$('today').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+$('fOwner').innerHTML = OWNERS.map(o=>`<option>${o}</option>`).join('');
+$('fSection').innerHTML = SECTIONS.map(s=>`<option value="${s.id}">${s.name} — ${s.sub}</option>`).join('');
+const DAYS=[[1,'Monday'],[2,'Tuesday'],[3,'Wednesday'],[4,'Thursday'],[5,'Friday'],[6,'Saturday'],[0,'Sunday']];
+const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+$('fDow').innerHTML = '<option value="">No day</option>'+DAYS.map(([v,n])=>`<option value="${v}">${n}</option>`).join('');
+$('fMonth').innerHTML = '<option value="">Month</option>'+MONTHS.map((n,i)=>`<option value="${i+1}">${n}</option>`).join('');
+$('fDay').innerHTML = '<option value="">Day</option>'+Array.from({length:31},(_,i)=>`<option>${i+1}</option>`).join('');
+
+/* ---------- due-date pickers ---------- */
+function getDue(sec){
+  const t=new Date(); t.setHours(0,0,0,0);
+  if(sec==='now'){ const v=$('fDow').value; if(v==='') return ''; const d=new Date(t); d.setDate(t.getDate()+((Number(v)-t.getDay()+7)%7)); return ymd(d); }
+  const m=Number($('fMonth').value), dd=Number($('fDay').value); if(!m||!dd) return '';
+  let y=t.getFullYear(); const last=n=>new Date(n,m,0).getDate();
+  let d=new Date(y,m-1,Math.min(dd,last(y))); if(d<t){ y++; d=new Date(y,m-1,Math.min(dd,last(y))); } return ymd(d);
+}
+function setDue(due, sec){
+  $('fDow').style.display = sec==='now' ? '' : 'none';
+  $('fMD').style.display = sec==='now' ? 'none' : '';
+  if(!due){ $('fDow').value=''; $('fMonth').value=''; $('fDay').value=''; return; }
+  const d=parseD(due);
+  $('fDow').value=String(d.getDay()); $('fMonth').value=String(d.getMonth()+1); $('fDay').value=String(d.getDate());
+}
+let curSec='now';
+$('fSection').onchange = () => { const due=getDue(curSec); curSec=$('fSection').value; setDue(due, curSec); };
+
+/* ---------- render ---------- */
+function renderChips(){
+  $('chips').innerHTML = ['All',...MEMBERS,'Team'].map(o=>`<button class="chip ${o===filter?'on':''}" data-o="${o}">${o==='All'?'Everyone':o}</button>`).join('');
+  $('chips').querySelectorAll('.chip').forEach(b=>b.onclick=()=>{filter=b.dataset.o; render();});
+}
+function sortTasks(a,b){
+  if(!!a.done!==!!b.done) return a.done?1:-1;
+  const da=a.due||'9999', dbb=b.due||'9999';
+  if(da!==dbb) return da<dbb?-1:1;
+  return (a.createdAt||0)-(b.createdAt||0);
+}
+function render(){
+  renderChips();
+  $('meBtn').textContent = me ? `Signed in as ${me} · switch` : '';
+  const vis = tasks.filter(t => filter==='All' || t.owner===filter);
+  $('board').innerHTML = SECTIONS.map(s=>{
+    const all = vis.filter(t=>(t.section||'now')===s.id).sort(sortTasks);
+    const open = all.filter(t=>!t.done);
+    const list = showDone ? all : open;
+    return `<section class="col ${s.id}">
+      <div class="colhead"><div><h2>${s.name}</h2><div class="sub">${s.sub}</div></div><span class="count">${open.length}</span></div>
+      <div class="list" data-sec="${s.id}">
+        ${list.length ? list.map(card).join('') : `<div class="empty">${loaded?'Nothing here yet':'Loading…'}</div>`}
+      </div>
+      <button class="addline" data-sec="${s.id}">+ Add to ${s.name}</button>
+    </section>`;
+  }).join('');
+  wire();
+  const last = tasks.reduce((m,t)=>(t.updatedAt||0)>(m?.updatedAt||0)?t:m, null);
+  $('foot').textContent = last && last.updatedAt ? `Last change: ${last.updatedBy||'Someone'} updated “${last.title}” · ${ago(last.updatedAt)}` : '';
+}
+function card(t){
+  const d = daysUntil(t.due);
+  let cls='', label='';
+  if(t.due){
+    if(!t.done && d<0){ cls='late'; label=`Overdue ${-d}d · ${fmtDate(t.due)}`; }
+    else if(!t.done && d===0){ cls='late'; label='Due today'; }
+    else if(!t.done && d<=2){ cls='soon'; label=`${d===1?'Tomorrow':'In '+d+' days'} · ${fmtDate(t.due)}`; }
+    else label = fmtDate(t.due);
+  }
+  const isNow = (t.section||'now')==='now';
+  const meta = isNow
+    ? `${t.due?`<span class="dow">${dow(t.due)}</span>`:''}<span class="pill right">${esc(t.owner||'TBD')}</span>`
+    : `<span class="pill">${esc(t.owner||'TBD')}</span>${t.due?`<span class="pill date ${cls}">${label}</span>`:''}`;
+  return `<div class="card ${t.done?'done':''} ${(!t.done && t.due && d<0)?'overdue':''}" draggable="true" data-id="${esc(t.id)}">
+    <button class="check ${t.done?'on':''}" data-check="${esc(t.id)}" aria-label="Mark done"></button>
+    <div class="body">
+      <div class="title">${esc(t.title)}</div>
+      ${t.notes?`<div class="notes">${esc(t.notes)}</div>`:''}
+      <div class="meta">${meta}</div>
+    </div>
+  </div>`;
+}
+function wire(){
+  document.querySelectorAll('.card').forEach(c=>{
+    c.onclick = e => { if(e.target.closest('.check')) return; openModal(tasks.find(t=>t.id===c.dataset.id)); };
+    c.ondragstart = e => { e.dataTransfer.setData('text/plain', c.dataset.id); c.classList.add('dragging'); };
+    c.ondragend = () => c.classList.remove('dragging');
+  });
+  document.querySelectorAll('[data-check]').forEach(b=>b.onclick = e => {
+    e.stopPropagation();
+    const t = tasks.find(x=>x.id===b.dataset.check); if(t) save({...t, done:!t.done});
+  });
+  document.querySelectorAll('.addline').forEach(b=>b.onclick=()=>openModal(null,b.dataset.sec));
+  document.querySelectorAll('.list').forEach(l=>{
+    l.ondragover = e => { e.preventDefault(); l.classList.add('over'); };
+    l.ondragleave = () => l.classList.remove('over');
+    l.ondrop = e => { e.preventDefault(); l.classList.remove('over');
+      const t=tasks.find(x=>x.id===e.dataTransfer.getData('text/plain'));
+      if(t && t.section!==l.dataset.sec) save({...t, section:l.dataset.sec});
+    };
+  });
+}
+
+/* ---------- modal ---------- */
+let delArmed=false;
+function openModal(t, sec){
+  editing = t ? t.id : null;
+  $('mTitle').textContent = t ? 'Edit task' : 'New task';
+  $('fTitle').value = t?.title || '';
+  $('fOwner').value = t?.owner || (sec ? 'TBD' : (me||'TBD'));
+  $('fSection').value = t?.section || sec || 'now';
+  curSec = $('fSection').value; setDue(t?.due || '', curSec);
+  $('fNotes').value = t?.notes || '';
+  $('fErr').textContent='';
+  $('delBtn').style.visibility = t ? 'visible':'hidden';
+  delArmed=false; $('delBtn').textContent='Delete'; $('delBtn').classList.remove('armed');
+  $('scrim').classList.add('open');
+  setTimeout(()=>$('fTitle').focus(),30);
+}
+function closeModal(){ $('scrim').classList.remove('open'); editing=null; }
+$('cancelBtn').onclick = closeModal;
+$('scrim').onclick = e => { if(e.target===$('scrim')) closeModal(); };
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+$('addBtn').onclick = () => openModal(null,'now');
+$('showDone').onchange = e => { showDone=e.target.checked; render(); };
+$('form').onsubmit = e => {
+  e.preventDefault();
+  const title=$('fTitle').value.trim();
+  if(!title){ $('fErr').textContent='Give the task a name.'; return; }
+  const base = editing ? tasks.find(t=>t.id===editing) : {id:uid(), done:false, createdAt:Date.now()};
+  save({...base, title, owner:$('fOwner').value, due:getDue($('fSection').value), section:$('fSection').value, notes:$('fNotes').value.trim()});
+  closeModal();
+};
+$('delBtn').onclick = () => {
+  if(!delArmed){ delArmed=true; $('delBtn').textContent='Confirm delete'; $('delBtn').classList.add('armed'); return; }
+  const id=editing; closeModal(); remove(id);
+};
+
+/* ---------- data (Google Sheet via Apps Script) ---------- */
+function setStatus(msg,warn){ $('status').textContent=msg||''; $('status').className='status'+(warn?' warn':''); }
+async function api(payload){
+  // text/plain keeps this a "simple" request so Apps Script accepts it without CORS preflight
+  const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(payload)});
+  const j = await r.json();
+  if(!j.ok) throw new Error(j.error||'failed');
+  return j;
+}
+async function load(){
+  if(pending) return; // don't overwrite changes still being saved
+  try{
+    const j = await api({action:'list'});
+    if(pending) return;
+    tasks = j.tasks; loaded=true;
+    setStatus('Synced · updates every 20 seconds');
+    render();
+  }catch(e){
+    loaded=true; setStatus('Can’t reach the task sheet right now. Showing the last version loaded.',true); render();
+  }
+}
+async function save(t){
+  t = {...t, updatedAt:Date.now(), updatedBy:me||'Someone'};
+  const i = tasks.findIndex(x=>x.id===t.id);
+  if(i>=0) tasks[i]=t; else tasks.push(t);
+  render(); // show immediately
+  pending++; setStatus('Saving…');
+  try{ await api({action:'upsert', task:t}); setStatus('Saved'); }
+  catch(e){ setStatus('That change didn’t save. Check your connection and try again.',true); }
+  finally{ pending--; }
+}
+async function remove(id){
+  tasks = tasks.filter(t=>t.id!==id); render();
+  pending++; setStatus('Deleting…');
+  try{ await api({action:'delete', id}); setStatus('Deleted'); }
+  catch(e){ setStatus('Couldn’t delete that. Try again.',true); }
+  finally{ pending--; }
+}
+
+/* ---------- gate ---------- */
+function showGate(){ $('gate').classList.add('open'); }
+$('gNames').innerHTML = MEMBERS.map(n=>`<button type="button" class="btn ghost" data-n="${n}">${n}</button>`).join('');
+$('gNames').querySelectorAll('button').forEach(b=>b.onclick=()=>{ me=b.dataset.n; store('goldnName',me); $('gate').classList.remove('open'); start(); });
+$('gateForm').onsubmit = e => e.preventDefault();
+$('meBtn').onclick = showGate;
+
+let started=false;
+function start(){
+  render();
+  if(started) return; started=true;
+  load();
+  setInterval(()=>{ if(!document.hidden) load(); }, POLL_MS);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) load(); });
+}
+
+render();
+if(API_URL.startsWith('PASTE')){ loaded=true; setStatus('Setup needed: paste the Apps Script URL into API_URL at the top of the script.',true); render(); }
+else if(!me) showGate();
+else start();
+</script>
+</body>
+</html>
