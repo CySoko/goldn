@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Goldn Team Planner</title>
+<link rel="icon" type="image/png" href="seal-88.png">
+<link rel="apple-touch-icon" href="seal-88.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -16,6 +18,8 @@
   body{margin:0;background:var(--cream);color:var(--text);font-family:Inter,system-ui,sans-serif;font-size:15px;line-height:1.4}
   header{background:#170d08;color:#fff;padding:22px 28px 18px}
   .hwrap{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px}
+  .logo{display:flex;align-items:center;gap:14px}
+  .logo img{width:52px;height:52px;flex:none}
   .brand{font-family:"Racing Sans One",sans-serif;font-size:40px;line-height:1;color:var(--gold);letter-spacing:.5px}
   .brand small{display:block;font-family:Inter,sans-serif;font-size:13px;color:#d9cbb8;letter-spacing:.08em;text-transform:uppercase;margin-top:6px;font-weight:600}
   .hright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
@@ -92,7 +96,7 @@
 <body>
 <header>
   <div class="hwrap">
-    <div class="brand">Goldn<small>Team Planner · New Venture Creation</small></div>
+    <div class="logo"><img src="seal-88.png" alt="" width="52" height="52"><div class="brand">Goldn<small>Team Planner · New Venture Creation</small></div></div>
     <div class="hright">
       <div class="today" id="today"></div>
       <button class="me" id="meBtn" title="Switch who you are"></button>
